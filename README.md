@@ -4,3 +4,5 @@ Some figures concerning HIV/AIDS epidemiology in Mozambique. Visuals produced fr
 ![alt text for screen readers](/figures/plot_hiv_prev.png "Evolution of HIV prevalence in Mozambique")
 
 ![alt text for screen readers](/figures/plot_hiv_evol.png "HIV/AIDS evolution in Mozambique")
+
+![alt text for screen readers](/figures/plot_hiv_cascade.png "HIV/AIDS treatment cascade in Mozambique")
