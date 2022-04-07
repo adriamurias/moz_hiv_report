@@ -126,7 +126,10 @@ hiv_estimates_modif <- hiv_estimates %>%
   mutate(e_prev_100 = e_prev_100,
          e_prev_100_lo = e_prev_100_lo,
          e_prev_100_hi = e_prev_100_hi,
+         
          e_mort_100 = e_mort/e_pop_num * 100,
+         e_mort_100_lo = e_mort_lo/e_pop_num * 100,
+         e_mort_100_hi = e_mort_hi/e_pop_num * 100,
          
          e_know_100 = e_know_100_hiv/100 * e_prev_100,
          e_know_100_lo = e_know_100_hiv_lo/100 * e_prev_100,
@@ -140,13 +143,18 @@ hiv_estimates_modif <- hiv_estimates %>%
          e_suppressed_100_lo = e_suppressed_100_hiv_lo/100 * e_prev_100,
          e_suppressed_100_hi = e_suppressed_100_hiv_hi/100 * e_prev_100,
          ) %>% 
-  select(year, e_prev_100, e_prev_100_lo, e_prev_100_hi, e_mort_100, e_pop_num,
+  select(year, e_prev_100, e_prev_100_lo, e_prev_100_hi, e_pop_num,
+         
+         e_mort_100, e_mort_100_lo, e_mort_100_hi, 
          
          e_know_100, e_know_100_lo, e_know_100_hi,
          
          e_art_100, e_art_100_lo, e_art_100_hi,
          
-         e_suppressed_100, e_suppressed_100_lo, e_suppressed_100_hi)
+         e_suppressed_100, e_suppressed_100_lo, e_suppressed_100_hi,
+         
+         e_new, e_new_hi, e_new_lo,
+         e_mort, e_mort_hi, e_mort_lo)
 
 #------------------------------------------------------------------------------
 # Plot
@@ -156,15 +164,11 @@ hiv_estimates_modif <- hiv_estimates %>%
 plot_hiv_prev <- hiv_estimates_modif %>% 
   ggplot(aes(x = year)) +
   # Prevalence
-  geom_line(aes(y = e_prev_100, color = "Prevalence"),
+  geom_line(aes(y = e_prev_100), color = "#e41a1c",
             size = 1.4) +
   geom_ribbon(aes(ymin = e_prev_100_lo, ymax = e_prev_100_hi),
               fill = "#e41a1c",
               alpha = 0.1) +
-  # Legend
-  scale_colour_manual("", 
-                      breaks = c("Prevalence"),
-                      values = c("#e41a1c")) +
   # Aesthetics
   theme_bw(base_size = 14) +
   theme(legend.position="top") +
@@ -179,14 +183,52 @@ plot_hiv_prev <- hiv_estimates_modif %>%
   xlab("Year") +
   ylab("Percentage of population")
 
-ggsave("figures/plot_hiv_prev.png", plot_hiv_prev, width = 8, height = 6)
+ggsave("figures/plot_hiv_prev.png", plot_hiv_prev, width = 8, height = 4)
 
-# Evolution of main epidemiologic variables
+# Evolution of main epidemiologic transition metrics
 plot_hiv_evol <- hiv_estimates_modif %>% 
+  ggplot(aes(x = year)) +
+  # New cases
+  geom_line(aes(y = e_new, color = "New infections"),
+            size = 1.4) +
+  geom_ribbon(aes(ymin = e_new_lo, ymax = e_new_hi),
+              fill = "#e41a1c",
+              alpha = 0.1) +
+  # Mortality
+  geom_line(aes(y = e_mort, color = "AIDS-related deaths"),
+            size = 1.4) +
+  geom_ribbon(aes(ymin = e_mort_lo, ymax = e_mort_hi),
+              fill = "#984ea3",
+              alpha = 0.1) +
+  # Legend
+  scale_colour_manual("", 
+                      breaks = c(
+                        "New infections", "AIDS-related deaths"),
+                      values = c(
+                        "#e41a1c", "#984ea3")) +
+  # Aesthetics
+  theme_bw(base_size = 14) +
+  theme(legend.position="top") +
+  scale_x_continuous(breaks = seq(min(hiv_estimates_modif$year),
+                                  max(hiv_estimates_modif$year), by = 2),
+                     minor_breaks = seq(
+                       min(hiv_estimates_modif$year),
+                       max(hiv_estimates_modif$year),
+                       1)) +
+  scale_y_continuous(breaks = seq(0, max(hiv_estimates_modif$e_new_hi),
+                                  by = 50000)) +
+  xlab("Year") +
+  ylab("Number of people")
+
+ggsave("figures/plot_hiv_evol.png", plot_hiv_evol, width = 8, height = 4)
+
+
+# Evolution of treatment cascade (90-90-90 targets)
+plot_hiv_cascade <- hiv_estimates_modif %>% 
   filter(year >= 2010) %>% 
   ggplot(aes(x = year)) +
   # Prevalence
-  geom_line(aes(y = e_prev_100, color = "Prevalence"),
+  geom_line(aes(y = e_prev_100, color = "Prevalence (15-49)"),
             size = 1.4) +
   geom_ribbon(aes(ymin = e_prev_100_lo, ymax = e_prev_100_hi),
               fill = "#e41a1c",
@@ -209,17 +251,14 @@ plot_hiv_evol <- hiv_estimates_modif %>%
   geom_ribbon(aes(ymin = e_suppressed_100_lo, ymax = e_suppressed_100_hi),
               fill = "#4daf4a",
               alpha = 0.1) +
-  # Mortality
-  geom_line(aes(y = e_mort_100, color = "Mortality"),
-            size = 1.4) +
   # Legend
   scale_colour_manual("", 
                       breaks = c(
-                        "Prevalence", "Know their status", "On ART",
-                        "Suppressed viral load", "Mortality"),
+                        "Prevalence (15-49)", "Know their status", "On ART",
+                        "Suppressed viral load"),
                       values = c(
                         "#e41a1c", "#377eb8", "#4daf4a",
-                        "#ff7f00", "#984ea3")) +
+                        "#ff7f00")) +
   # Aesthetics
   theme_bw(base_size = 14) +
   theme(legend.position="top") +
@@ -234,4 +273,4 @@ plot_hiv_evol <- hiv_estimates_modif %>%
   xlab("Year") +
   ylab("Percentage of population")
 
-ggsave("figures/plot_hiv_evol.png", plot_hiv_evol, width = 8, height = 6)
+ggsave("figures/plot_hiv_cascade.png", plot_hiv_cascade, width = 8, height = 6)
