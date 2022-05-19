@@ -3,7 +3,7 @@ library(tidyverse)
 library(readxl)
 
 #------------------------------------------------------------------------------
-# Import World TB Data
+# Import World HIV Data
 #------------------------------------------------------------------------------
 # Data obtained from UNAIDS:
 # https://www.unaids.org/en/resources/documents/2021/HIV_estimates_with_uncerta
@@ -273,4 +273,4 @@ plot_hiv_cascade <- hiv_estimates_modif %>%
   xlab("Year") +
   ylab("Percentage of population")
 
-ggsave("figures/plot_hiv_cascade.png", plot_hiv_cascade, width = 8, height = 6)
+ggsave("figures/plot_hiv_cascade.png", plot_hiv_cascade, width = 8, height = 5)
